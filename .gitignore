@@ -1,0 +1,25 @@
+# Python
+__pycache__/
+*.pyc
+.venv/
+
+# VSCode
+.vscode/
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Node / JS
+node_modules/
+
+# Dotnet / NuGet / Build
+*.dll
+*.exe
+*.pdb
+*.cache
+*.log
+*.nuget/
+packages/
+bin/
+obj/

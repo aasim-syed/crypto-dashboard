@@ -1,0 +1,29 @@
+:root { font-family: Inter, system-ui, Arial; color: #111; }
+* { box-sizing: border-box; }
+body { margin: 0; background: #f6f7f9; }
+header { padding: 16px 24px; background: #fff; border-bottom: 1px solid #e5e7eb; }
+.layout { display: flex; flex-direction: column; min-height: 100vh; }
+main { display: grid; gap: 16px; grid-template-columns: 1fr 360px; padding: 16px; }
+.left > .card + .card { margin-top: 16px; }
+
+.card { background: #fff; border: 1px solid #e5e7eb; border-radius: 10px; padding: 16px; }
+.row { display:flex; align-items:center; justify-content:space-between; }
+
+.tbl { width: 100%; border-collapse: collapse; }
+.tbl th, .tbl td { padding: 10px 8px; border-bottom: 1px solid #f0f2f5; text-align: left; }
+.tbl tr { cursor: pointer; }
+.tbl tr:hover { background: #fafafa; }
+.muted { color: #6b7280; }
+
+.pos { color: #137333; font-weight: 600; }
+.neg { color: #b00020; font-weight: 600; }
+
+.chat { display: flex; flex-direction: column; height: 520px; }
+.log { flex: 1; overflow-y: auto; display: flex; flex-direction: column; gap: 8px; padding: 8px; }
+.bubble { max-width: 80%; padding: 10px 12px; border-radius: 12px; }
+.bubble.me { align-self: flex-end; background: #e8f0fe; }
+.bubble.bot { align-self: flex-start; background: #f1f5f9; }
+.chatbar { display: flex; gap: 8px; }
+.chatbar input { flex: 1; padding: 10px; border: 1px solid #e5e7eb; border-radius: 8px; }
+.chatbar button { padding: 10px 14px; border: 1px solid #e5e7eb; background:#fff; border-radius: 8px; cursor:pointer; }
+.right .hint { margin-top: 12px; font-size: 14px; color:#475569; }
