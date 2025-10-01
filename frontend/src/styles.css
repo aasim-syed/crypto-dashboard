@@ -150,7 +150,7 @@ body {
 .tour-title { font-weight: 700; margin-bottom: 6px; }
 .tour-body { color: var(--text-muted); margin-bottom: 10px; }
 .tour-actions { display: flex; align-items: center; gap: 8px; }
-/* Skeleton shimmer effect */
+/* Skeleton shimmer effect for TrendChart */
 .chart-skeleton {
   display: flex;
   flex-direction: column;
