@@ -23,7 +23,7 @@ Base.metadata.create_all(bind=engine)
 ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
-    "https://crypto-dashboard-eight-puce.vercel.app/",
+    "https://crypto-dashboard-eight-puce.vercel.app",
 ]
 app.add_middleware(
     CORSMiddleware,
