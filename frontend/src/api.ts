@@ -1,7 +1,28 @@
-/// <reference types="vite/client" />
 import axios from "axios";
+
+// Extend ImportMeta interface to include 'env'
+interface ImportMetaEnv {
+  readonly VITE_API_URL?: string;
+}
+
+interface ImportMeta {
+  readonly env: ImportMetaEnv;
+}
+
+const API_BASE = import.meta.env.VITE_API_URL || "http://localhost:8000";
+
 export const API = axios.create({
-  baseURL: import.meta.env.VITE_API_URL || "http://localhost:8000",
+  baseURL: API_BASE,
+  // we’re using Bearer tokens, not cookies:
+  withCredentials: false,
 });
-// don't send cookies unless you need them
-API.defaults.withCredentials = false;
+
+// attach token if present
+API.interceptors.request.use((config) => {
+  const token = localStorage.getItem("token");
+  if (token) {
+    config.headers = config.headers || {};
+    (config.headers as any).Authorization = `Bearer ${token}`;
+  }
+  return config;
+});

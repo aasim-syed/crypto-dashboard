@@ -7,6 +7,9 @@ import { CoinRow, History, QAResponse } from "./types";
 import ThemeToggle from "./components/ThemeToggle";
 import { ThemeProvider } from "./theme";
 import Walkthrough from "./components/Walkthrough";
+import AuthButton from "./components/AuthButton";
+import { fetchFavorites, addFavorite, removeFavorite } from "./favorites";
+import { useAuth } from "./auth";
 
 export default function App() {
   return (
@@ -21,7 +24,29 @@ function Shell() {
   const [selected, setSelected] = useState<string | null>(null);
   const [history, setHistory] = useState<History | null>(null);
   const [sort, setSort] = useState<string>("market_cap_rank");
+const { user } = useAuth();
+const [favorites, setFavorites] = useState<Set<string>>(new Set());
 
+async function loadFavorites() {
+  if (!user) { setFavorites(new Set()); return; }
+  const list = await fetchFavorites();
+  setFavorites(new Set(list));
+}
+
+useEffect(() => { loadFavorites(); }, [user]);
+
+async function toggleFavorite(coinId: string) {
+  if (!user) {
+    alert("Please login to manage favorites.");
+    return;
+  }
+  if (favorites.has(coinId)) {
+    await removeFavorite(coinId);
+  } else {
+    await addFavorite(coinId);
+  }
+  loadFavorites();
+}
   async function loadTable() {
     const { data } = await API.get<CoinRow[]>("/coins", { params: { limit: 10, sort } });
     setRows(data);
@@ -55,6 +80,7 @@ function Shell() {
           <div className="tag">Pro</div>
         </div>
         <div className="hdr-right">
+            <AuthButton />
           <ThemeToggle />
           <button
             className="btn ghost"
@@ -83,7 +109,13 @@ function Shell() {
               </div>
             </div>
             <div data-tour-id="table">
-              <CoinTable rows={rows} onSelect={setSelected} />
+             <CoinTable
+  rows={rows}
+  onSelect={setSelected}
+  favorites={favorites}
+  onToggleFav={toggleFavorite}
+/>
+
             </div>
           </div>
 

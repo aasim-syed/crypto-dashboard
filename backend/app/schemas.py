@@ -34,3 +34,18 @@ class QAResponse(BaseModel):
     intent: str
     coin_id: Optional[str] = None
     extra: Optional[dict] = None
+
+class UserCreate(BaseModel):
+    username: str
+    password: str
+
+class TokenOut(BaseModel):
+    access_token: str
+    token_type: str = "bearer"
+
+class FavoriteOut(BaseModel):
+    id: int
+    user_id: int
+    coin_id: str
+    class Config:
+        orm_mode = True
