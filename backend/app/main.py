@@ -17,6 +17,24 @@ Base.metadata.create_all(bind=engine)
 
 # simple cache to reduce DB scans for table
 table_cache = TTLCache(maxsize=1, ttl=30)  # 30s
+from fastapi.middleware.cors import CORSMiddleware
+
+app = FastAPI(title="Crypto Backend", version="1.0.0")
+
+# allow Vite dev server
+ALLOWED_ORIGINS = [
+    "http://localhost:5173",
+    "http://127.0.0.1:5173",
+]
+
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=ALLOWED_ORIGINS,   # don't use "*" if you ever send cookies
+    allow_credentials=True,          # OK to keep True; FE won't send creds unless you set it
+    allow_methods=["*"],             # includes GET/POST/OPTIONS (preflight)
+    allow_headers=["*"],             # allow custom headers sent by axios/fetch
+)
+
 
 def get_db():
     db = SessionLocal()
