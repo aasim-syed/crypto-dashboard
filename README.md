@@ -1,116 +1,86 @@
-# 🚀 Crypto Dashboard with Chat Assistant + Favorites
+# 📈 Crypto Dashboard with Chat Assistant
 
-## 📌 What This Project Solves
+This project was built as part of the **Jetapult Fullstack Engineer Assignment**.  
+It is a full-stack **Crypto Dashboard** with a **rule-based chat assistant** that integrates with the live CoinGecko API.  
 
-Tracking cryptocurrency data can be overwhelming:  
-- Most platforms show raw numbers without context.  
-- Users have to jump between multiple sources to compare coins.  
-- Personalized tracking (like favorites) is locked behind heavy platforms.  
+Users can:  
+- View top 10 cryptocurrencies (price, market cap, volume, % change).  
+- Explore 30-day historical price charts.  
+- Chat in natural language to query prices or trends.  
+- (Bonus) Register/Login and manage favorite coins ⭐.  
+- (Bonus) Switch between light/dark themes with UX enhancements.  
 
-**This project solves that problem** by delivering a **lightweight, interactive crypto dashboard** with:  
-- **Clean visualization** of top coins and their price history.  
-- **Natural query interface** (chat assistant) to get answers quickly.  
-- **Personalized experience** with login & favorites ⭐.  
-- **Polished UI** (dark/light mode, tooltips, skeleton loaders) for smooth user experience.  
-
-👉 In just a few hours, this app demonstrates **end-to-end fullstack skills**:  
-data ingestion → backend APIs → frontend UI → authentication → personalization.
+🚀 **Deployed App**: [Crypto Dashboard Live](https://crypto-dashboard-eight-puce.vercel.app/)  
+⚡ **Backend API**: [Render Backend](https://crypto-dashboard-ldxf.onrender.com/)  
+📌 **GitHub Repo**: [aasim-syed/crypto-dashboard](https://github.com/aasim-syed/crypto-dashboard)  
 
 ---
 
-## ✨ Features
+## 📊 Coverage Matrix
 
-### 🔹 Backend
-- **Live Crypto Data** from [CoinGecko API](https://www.coingecko.com/).  
-- **Database persistence** (SQLite) for top coins & 30-day history.  
-- **REST APIs**:  
-  - `POST /sync` → fetch top coins + history  
-  - `GET /coins` → top N coins  
-  - `GET /coins/{id}/history` → historical prices  
-  - `POST /qa` → rule-based Q&A assistant  
-  - `POST /auth/register` & `POST /auth/login` → JWT authentication  
-  - `GET/POST/DELETE /favorites/*` → manage user’s favorite coins  
-
-### 🔹 Frontend
-- **Dashboard Table**: top 10 coins with rank, price, volume, % change.  
-- **Trend Chart**: interactive 30-day price graph with hover tooltips.  
-- **Chat Assistant Panel**: ask queries in plain English (“What’s BTC price?”).  
-- **Auth Modal**: login/register with JWT.  
-- **Favorites ⭐**: mark coins to track personally.  
-- **Polished UX**: dark/light mode, gradients, skeleton loaders, guided tooltips.  
+| Requirement Area             | Jetapult Requirement                                                                 | My Implementation                                                                                                   | Coverage |
+|-------------------------------|---------------------------------------------------------------------------------------|---------------------------------------------------------------------------------------------------------------------|----------|
+| **Backend – API Integration** | Fetch data from CoinGecko and store top 10 coins + 30-day history                     | Implemented `/sync` endpoint with `sync_top_and_history` using CoinGecko API; persisted in SQLite DB                 | ✅ Done  |
+| **Backend – Endpoints**       | - Get top N coins<br>- Get historical prices<br>- Rule-based Q&A                      | - `/coins` → top N coins<br>- `/coins/{id}/history` → historical data<br>- `/qa` → rule-based parsing for price/trend | ✅ Done  |
+| **Backend – Caching**         | Reduce API calls                                                                      | TTLCache (30s) added to minimize DB scans and CoinGecko fetch                                                        | ✅ Bonus |
+| **Frontend – Dashboard Table**| Table of top 10 coins (price, volume, % change)                                       | React + Vite table with sorting, favorites toggle ⭐                                                                  | ✅ Done  |
+| **Frontend – Chart**          | Line chart showing 30-day historical trend                                            | Chart.js TrendChart with gradients, hover tooltips, responsive UI                                                    | ✅ Done  |
+| **Frontend – Chat Assistant** | Panel for natural queries → backend Q&A                                               | ChatPanel connected to `/qa` endpoint, supports “price of btc”, “7-day trend of ETH”, etc.                           | ✅ Done  |
+| **Frontend – UX**             | Functional UI, polish optional                                                        | Dark/Light mode toggle, gradients, skeleton loaders, guided tooltips, onboarding tour                                | ✅ Bonus |
+| **Auth (Bonus)**              | User authentication and favorites                                                     | JWT auth with `/auth/register` + `/auth/login`; favorites endpoint with add/remove/list                              | ✅ Bonus |
+| **Filtering/Sorting (Bonus)** | Sort/filter table                                                                     | Dropdown sort supported (price, volume, rank, % change, name)                                                        | ✅ Bonus |
+| **Deployment (Bonus)**        | Deploy app                                                                            | Frontend deployed on **Vercel**; Backend deployed on **Render**                                                      | ✅ Bonus |
+| **Tests (Bonus)**             | Unit tests                                                                            | Added backend unit tests (pytest) and frontend tests (Vitest)                                                        | ✅ Done |
+| **Documentation**             | README with setup, logic explanation, assumptions                                     | This README includes setup, coverage matrix, timeline, and walkthrough                                               | ✅ Done  |
 
 ---
 
-## 🛠️ Tech Stack
-- **Backend**: FastAPI, SQLAlchemy, SQLite, httpx, JWT, Passlib (pbkdf2).  
-- **Frontend**: React (Vite + TS), Chart.js, TailwindCSS.  
-- **Auth**: JWT-based, secure password hashing with pbkdf2.  
+## ⏱ Timeline Breakdown (4 Hours)
+
+| Time  | Features Implemented                                                                 | Impact on User Experience |
+|-------|---------------------------------------------------------------------------------------|----------------------------|
+| **Hour 1** | - Setup FastAPI + SQLite ORM models<br>- Ingestion pipeline from CoinGecko (`/sync`)<br>- `/coins` & `/coins/{id}/history` endpoints | 🔹 Reliable data foundation<br>🔹 Immediate access to crypto prices & trends |
+| **Hour 2** | - Rule-based Q&A endpoint `/qa`<br>- JWT auth (register/login)<br>- Favorites API (add/remove/list) | 🔹 Natural chat queries<br>🔹 Personalized experience<br>🔹 Favorites ⭐ for engagement |
+| **Hour 3** | - React + Vite setup<br>- Dashboard Table (sortable)<br>- TrendChart (Chart.js) with tooltips<br>- Chat Assistant UI | 🔹 Clean data visualization<br>🔹 Interactive charts<br>🔹 Conversational assistant |
+| **Hour 4** | - Auth modal (login/register)<br>- Favorites integration in table<br>- Dark/Light theme toggle<br>- Skeleton loaders + gradients<br>- Walkthrough (guided tour) | 🔹 Smooth, polished UX<br>🔹 Personalized themes<br>🔹 Easy onboarding with tooltips |
 
 ---
 
-## 🌟 Why It Matters
-- **For users**: Simple, fast, and personalized crypto insights.  
-- **For developers**: Showcases integration of API + DB + Auth + UI.  
-- **For evaluators**: Demonstrates full-stack capability (backend + frontend + UX polish) in just 4 hours.  
+## 🛠 Setup Instructions
 
----
-
-## 🚀 Future Improvements
-- Add real-time WebSocket updates for live prices.  
-- Extend chat assistant to LLM-powered semantic Q&A.  
-- Deploy to cloud (Vercel + Render/Heroku) for public demo.  
-- Unit tests & CI/CD pipeline for production-readiness.  
-
----
-
-## ⚡ Quickstart
-
-### 1. Clone Repo
-```bash
-git clone https://github.com/aasim-syed/crypto-dashboard.git
-cd crypto-dashboard
-```
-
-### 2. Backend Setup
+### Backend (FastAPI)
 ```bash
 cd backend
 python -m venv .venv
-.venv\Scripts\activate  # Windows
-# or: source .venv/bin/activate  # Linux/Mac
-
+source .venv/bin/activate   # or .venv\Scripts\activate on Windows
 pip install -r requirements.txt
-
-# Copy env file
-cp .env.example .env
-
-# Run server
 uvicorn app.main:app --reload --port 8000
 ```
-Backend will be running on: [http://localhost:8000](http://localhost:8000)  
 
-### 3. Frontend Setup
+### Frontend (React + Vite + TS)
 ```bash
 cd frontend
 npm install
-npm run dev
+npm run dev   # runs at http://localhost:5173
 ```
-Frontend will be running on: [http://localhost:5173](http://localhost:5173)  
 
-### 4. Access APIs & UI
-- API Docs: [http://localhost:8000/docs](http://localhost:8000/docs)  
-- Dashboard: [http://localhost:5173](http://localhost:5173)  
-
----
-
-## ✅ Features Completed in 4 Hours
-
-| Time | Features | Impact on UX |
-|------|-----------|--------------|
-| Hour 1 | Backend setup, DB models, CoinGecko sync, `/coins` + `/history` APIs | Core data available instantly |
-| Hour 2 | Rule-based Q&A, JWT Auth, Favorites API | Chat + personalization boost |
-| Hour 3 | React setup, Dashboard table, Trend chart, Chat panel | Data viz + interactive queries |
-| Hour 4 | Auth modal, Favorites ⭐ UI, Dark/Light mode, skeleton loaders, guided tooltips | Smooth UX, personalization, polish |
+### Environment Variables
+- **Frontend**: `VITE_API_URL=https://crypto-dashboard-ldxf.onrender.com`  
+- **Backend**: No external vars required (SQLite DB auto-created).  
 
 ---
 
-🔥 With just 4 hours of work, this project delivers a **full-stack crypto dashboard** that is **functional, interactive, secure, and user-friendly**.
+## 💬 Chat Assistant Logic
+- **Rule-based string parsing** using keywords like `price`, `trend`, `7-day`, `btc`, `eth`.  
+- Routes queries to:  
+  - `/coins` → price lookup.  
+  - `/coins/{id}/history` → trend lookup.  
+- Fallback: returns `"Sorry, I didn't understand the query."`.  
+
+---
+
+## 🌟 Features to Improve
+- Expand Q&A with NLP intent classification.  
+- Add pagination & filters for more coins.  
+- Extend test coverage (frontend + backend).  
+- CI/CD pipelines for automated deployment.  
