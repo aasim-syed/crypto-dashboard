@@ -203,3 +203,88 @@ body {
 .star.active { filter: drop-shadow(0 0 6px rgba(255, 213, 0, 0.6)); }
 .right { text-align: right; }
     
+/* Default select */
+.select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* Dark mode override */
+[data-theme="dark"] .select {
+  background: #1f2937;   /* dark gray */
+  color: #f3f4f6;        /* light text */
+  border-color: #374151; /* subtle border */
+}
+
+/* Option items inside select */
+[data-theme="dark"] .select option {
+  background: #1f2937;
+  color: #f3f4f6;
+}
+
+/* Segmented (All / Favorites) */
+.segmented {
+  display: inline-flex;
+  background: color-mix(in srgb, var(--fg) 6%, transparent);
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 4px;
+  gap: 4px;
+}
+.segmented.is-disabled { opacity: 0.6; pointer-events: none; }
+.seg {
+  min-width: 110px;
+  padding: 8px 10px;
+  border-radius: 8px;
+  border: 0;
+  background: transparent;
+  color: var(--fg);
+  cursor: pointer;
+  font-weight: 600;
+}
+.seg.active {
+  background: linear-gradient(135deg, var(--accent), var(--accent-2));
+  color: white;
+}
+.badge {
+  background: color-mix(in srgb, white 20%, transparent);
+  color: inherit;
+  border-radius: 999px;
+  padding: 2px 8px;
+  margin-left: 6px;
+  font-size: 12px;
+}
+
+/* Favorites section */
+.fav-list { list-style: none; margin: 12px 0 0; padding: 0; display: flex; flex-direction: column; gap: 8px; }
+.fav-item {
+  display: grid;
+  grid-template-columns: 1fr auto auto;
+  gap: 10px;
+  align-items: center;
+  border: 1px solid var(--border);
+  border-radius: 12px;
+  padding: 10px;
+  background: color-mix(in srgb, var(--fg) 4%, transparent);
+}
+.fav-name {
+  text-align: left;
+  background: transparent;
+  border: 0;
+  color: var(--fg);
+  font-weight: 600;
+  cursor: pointer;
+}
+.fav-meta { display: flex; gap: 12px; align-items: center; }
+.sym { color: var(--muted); font-weight: 500; }
+.price { font-variant-numeric: tabular-nums; }
+.chg.up { color: #16a34a; }
+.chg.down { color: #ef4444; }
+
+/* Tiny ghost button for remove */
+.btn.tiny { height: 30px; padding: 0 10px; border-radius: 8px; }
