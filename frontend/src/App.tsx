@@ -1,4 +1,4 @@
-import React, { useEffect, useMemo, useState } from "react";
+import React, { useEffect, useState, useMemo } from "react";
 import { API } from "./api";
 import CoinTable from "./components/CoinTable";
 import TrendChart from "./components/TrendChart";
@@ -10,8 +10,6 @@ import Walkthrough from "./components/Walkthrough";
 import AuthButton from "./components/AuthButton";
 import { fetchFavorites, addFavorite, removeFavorite } from "./favorites";
 import { useAuth } from "./auth";
-import FavoritesToggle from "./components/FavoritesToggle";
-import FavoritesSection from "./components/FavoritesSection";
 
 export default function App() {
   return (
@@ -31,9 +29,17 @@ function Shell() {
   const [favorites, setFavorites] = useState<Set<string>>(new Set());
   const [viewMode, setViewMode] = useState<"all" | "faves">("all");
 
+  // Reset on logout
+  useEffect(() => {
+    if (!user) {
+      setFavorites(new Set());
+      if (viewMode === "faves") setViewMode("all");
+    }
+  }, [user]);
+
   async function loadFavorites() {
     if (!user) { setFavorites(new Set()); return; }
-    const list = await fetchFavorites(); // expects string[] coin ids
+    const list = await fetchFavorites();
     setFavorites(new Set(list));
   }
   useEffect(() => { loadFavorites(); }, [user]);
@@ -41,6 +47,7 @@ function Shell() {
   async function toggleFavorite(coinId: string) {
     if (!user) {
       alert("Please login to manage favorites.");
+      setViewMode("all");
       return;
     }
     if (favorites.has(coinId)) await removeFavorite(coinId);
@@ -53,7 +60,6 @@ function Shell() {
     setRows(data);
     if (!selected && data.length) setSelected(data[0].id);
   }
-
   async function loadHistory(id: string) {
     const { data } = await API.get<History>(`/coins/${id}/history`, { params: { days: 30 } });
     setHistory(data);
@@ -66,45 +72,37 @@ function Shell() {
     if (r.intent === "trend_lookup" && r.coin_id) setSelected(r.coin_id);
   }
 
-  // ---------- Sorting helpers (works for both All + Favorites) ----------
+  // Sorting helper
   function sortRows(list: CoinRow[], sortKey: string): CoinRow[] {
     const arr = [...list];
     switch (sortKey) {
-      case "price":
-        return arr.sort((a, b) => b.price - a.price);
-      case "volume":
-        return arr.sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0));
-      case "market_cap":
-        return arr.sort((a, b) => (b.market_cap ?? 0) - (a.market_cap ?? 0));
-      case "pct_change_24h":
-        return arr.sort((a, b) => (b.pct_change_24h ?? 0) - (a.pct_change_24h ?? 0));
-      case "name":
-        return arr.sort((a, b) => a.name.localeCompare(b.name));
+      case "price": return arr.sort((a, b) => b.price - a.price);
+      case "volume": return arr.sort((a, b) => (b.volume ?? 0) - (a.volume ?? 0));
+      case "market_cap": return arr.sort((a, b) => (b.market_cap ?? 0) - (a.market_cap ?? 0));
+      case "pct_change_24h": return arr.sort((a, b) => (b.pct_change_24h ?? 0) - (a.pct_change_24h ?? 0));
+      case "name": return arr.sort((a, b) => a.name.localeCompare(b.name));
       case "market_cap_rank":
-      default:
-        // rank ASC (1 is best). Use large default to push unknowns down.
-        return arr.sort((a, b) => (a.market_cap_rank ?? 9e9) - (b.market_cap_rank ?? 9e9));
+      default: return arr.sort((a, b) => (a.market_cap_rank ?? 9e9) - (b.market_cap_rank ?? 9e9));
     }
   }
 
-  // All coins (sorted)
   const sortedAll = useMemo(() => sortRows(rows, sort), [rows, sort]);
 
-  // Visible rows (All or Favorites subset, both sorted client-side)
   const visibleRows = useMemo(() => {
     if (viewMode === "faves") {
-      const onlyFavs = rows.filter((r) => favorites.has(r.id));
+      const onlyFavs = rows.filter(r => favorites.has(r.id));
       return sortRows(onlyFavs, sort);
     }
     return sortedAll;
   }, [viewMode, rows, favorites, sort, sortedAll]);
 
-  // Keep a valid selection when visibleRows change (esp. in Favorites mode)
+  // Ensure selection exists when rows change
   useEffect(() => {
-    if (!visibleRows.length) return;
-    const stillVisible = visibleRows.some((r) => r.id === selected);
-    if (!stillVisible) setSelected(visibleRows[0].id);
-  }, [visibleRows]); // eslint-disable-line react-hooks/exhaustive-deps
+    if (!visibleRows.length) { setHistory(null); return; }
+    if (!selected || !visibleRows.some(r => r.id === selected)) {
+      setSelected(visibleRows[0].id);
+    }
+  }, [visibleRows]);
 
   const steps = [
     { id: "sort",  title: "Sort Coins", body: "Use this to sort by rank, price, volume, market cap or 24h %." },
@@ -135,17 +133,9 @@ function Shell() {
       <main className="grid">
         <section className="left">
           <div className="card" data-tour-id="sort">
-            <div className="row wrap" style={{ gap: 8 }}>
-              <h3 className="card-title">Coins</h3>
-
-              <FavoritesToggle
-                mode={viewMode}
-                count={favorites.size}
-                onChange={setViewMode}
-                disabled={!user}
-              />
-
-              <div className="row" style={{ gap: 8, marginLeft: "auto" }}>
+            <div className="row">
+              <h3 className="card-title">Top 10 Coins</h3>
+              <div className="row" style={{ gap: 8 }}>
                 <select className="select" value={sort} onChange={e => setSort(e.target.value)}>
                   <option value="market_cap_rank">Rank</option>
                   <option value="price">Price</option>
@@ -155,9 +145,21 @@ function Shell() {
                   <option value="name">Name</option>
                 </select>
                 <button className="btn" onClick={loadTable}>Refresh</button>
+                <button
+                  className={`btn ${viewMode === "faves" ? "active" : ""}`}
+                  onClick={() => {
+                    if (!user) {
+                      alert("Please login to view favorites.");
+                      setViewMode("all");
+                      return;
+                    }
+                    setViewMode(viewMode === "faves" ? "all" : "faves");
+                  }}
+                >
+                  ⭐ Favorites
+                </button>
               </div>
             </div>
-
             <div data-tour-id="table">
               <CoinTable
                 rows={visibleRows}
@@ -165,12 +167,6 @@ function Shell() {
                 favorites={favorites}
                 onToggleFav={toggleFavorite}
               />
-              {viewMode === "faves" && visibleRows.length === 0 && (
-                <div className="hint" style={{ marginTop: 8 }}>
-                  {user ? "No favorites yet. Click the ★ star in the table to add some."
-                        : "Login to start adding favorites."}
-                </div>
-              )}
             </div>
           </div>
 
@@ -178,14 +174,6 @@ function Shell() {
         </section>
 
         <aside className="right">
-          <FavoritesSection
-            rows={rows}
-            favorites={favorites}
-            onSelect={setSelected}
-            onToggleFav={toggleFavorite}
-            disabled={!user}
-          />
-
           <div className="card" data-tour-id="chat">
             <h3 className="card-title">Chat Assistant</h3>
             <ChatPanel onIntent={onIntent} />
