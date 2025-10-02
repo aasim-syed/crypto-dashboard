@@ -1,0 +1,10 @@
+{
+  "compilerOptions": {
+    "target": "ESNext",
+    "module": "ESNext",
+    "moduleResolution": "bundler",   // <– Fixes the type resolution issue
+    "jsx": "react-jsx",
+    "types": ["vitest"]
+  },
+  "include": ["src", "vite.config.ts"]
+}

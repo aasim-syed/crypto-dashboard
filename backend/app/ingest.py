@@ -1,36 +1,60 @@
+# backend/app/ingest.py
 from sqlalchemy.orm import Session
-from datetime import datetime, timedelta
-from . import models
+from .models import Coin, PricePoint
 from .coingecko import fetch_top_market, fetch_history
+from datetime import datetime
 
-async def sync_top_and_history(db: Session, top_n: int = 10, days: int = 30):
-    top = await fetch_top_market(top_n)
-    ids = []
-    for c in top:
-        coin = db.get(models.Coin, c["id"])
-        if not coin:
-            coin = models.Coin(id=c["id"], symbol=c["symbol"], name=c["name"], market_cap_rank=c.get("market_cap_rank") or 10**9)
-            db.add(coin)
-        else:
-            coin.symbol = c["symbol"]
-            coin.name = c["name"]
-            coin.market_cap_rank = c.get("market_cap_rank") or coin.market_cap_rank
-        ids.append(c["id"])
-    db.commit()
+def _parse_series(pairs):
+    """Normalize CoinGecko-style [[ms, val], ...] into (datetime, float)."""
+    out = []
+    for item in pairs or []:
+        if isinstance(item, (list, tuple)) and len(item) >= 2:
+            ts_ms, val = item
+            ts = datetime.utcfromtimestamp(ts_ms / 1000.0)
+            out.append((ts, float(val)))
+    return out
 
-    # history
-    for coin_id in ids:
-        series, vols, mcaps = await fetch_history(coin_id, days=days)
-        # upsert points
-        for pt in series:
-            ts = pt["ts"]
-            existing = db.query(models.PricePoint).filter_by(coin_id=coin_id, ts=ts).first()
-            if not existing:
-                db.add(models.PricePoint(
-                    coin_id=coin_id,
+def sync_top_and_history(db: Session, n: int = 10, days: int = 30):
+    """
+    Fetch top N coins from CoinGecko and store with historical prices.
+    """
+    top = fetch_top_market(n=n)
+    for coin in top:
+        cid = coin["id"]
+        c = (
+            db.query(Coin)
+            .filter(Coin.id == cid)
+            .one_or_none()
+        )
+        if not c:
+            c = Coin(
+                id=cid,
+                name=coin["name"],
+                symbol=coin["symbol"],
+                market_cap_rank=coin["market_cap_rank"],
+            )
+            db.add(c)
+            db.commit()
+
+        prices, volumes, mcaps = fetch_history(cid, days=days)
+        price_pairs = _parse_series(prices)
+        vol_pairs   = _parse_series(volumes)
+        mc_pairs    = _parse_series(mcaps)
+
+        for (ts, price), (_, vol), (_, mc) in zip(price_pairs, vol_pairs, mc_pairs):
+            exists = (
+                db.query(PricePoint)
+                  .filter(PricePoint.coin_id == cid, PricePoint.ts == ts)
+                  .first()
+            )
+            if not exists:
+                db.add(PricePoint(
+                    coin_id=cid,
                     ts=ts,
-                    price=pt["price"],
-                    volume=vols.get(ts, 0.0),
-                    market_cap=mcaps.get(ts, 0.0),
+                    price=price,
+                    volume=vol,
+                    market_cap=mc,
                 ))
         db.commit()
+
+    return {"status": "ok", "count": len(top)}
