@@ -203,3 +203,26 @@ body {
 .star.active { filter: drop-shadow(0 0 6px rgba(255, 213, 0, 0.6)); }
 .right { text-align: right; }
     
+/* Default select */
+.select {
+  padding: 6px 10px;
+  border-radius: 6px;
+  border: 1px solid var(--border);
+  background: var(--bg);
+  color: var(--fg);
+  font-size: 14px;
+  transition: background 0.2s, color 0.2s;
+}
+
+/* Dark mode override */
+[data-theme="dark"] .select {
+  background: #1f2937;   /* dark gray */
+  color: #f3f4f6;        /* light text */
+  border-color: #374151; /* subtle border */
+}
+
+/* Option items inside select */
+[data-theme="dark"] .select option {
+  background: #1f2937;
+  color: #f3f4f6;
+}
